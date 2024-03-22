@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback, useState } from 'react'
 import General from './components/General'
 import Volume from './components/Volume'
 import Preview from './components/Preview'
@@ -6,7 +6,8 @@ import './style.scss'
 import { FormProvider, useForm } from 'react-hook-form'
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup"
-import { Button, Grid, Page } from '@shopify/polaris'
+import { Button, Frame, Grid, Page } from '@shopify/polaris'
+import { Toast } from '@shopify/polaris'
 const schema = yup
   .object({
     camp: yup.string().required(),
@@ -17,6 +18,13 @@ const schema = yup
   .required()
 
 const Main = () => {
+  const [active, setActive] = useState('');
+  const toggleActive = useCallback(() => setActive(''), []);
+
+  const toastMarkup = active ? (
+    <Toast content={active} onDismiss={toggleActive} />
+  ) : null;
+
   const methods = useForm({
     resolver: yupResolver(schema), defaultValues: {
       camp: '',
@@ -45,6 +53,7 @@ const Main = () => {
     try {
       const res = await fetchData(data);
       console.table('Dữ liệu form:', res);
+      setActive('Call Api Process. Please see data in console log')
     } catch (error) {
       console.error('Lỗi khi gọi API:', error);
     }
@@ -71,6 +80,9 @@ const Main = () => {
           Submit
         </Button>
       </form>
+      <Frame>
+        {toastMarkup}
+      </Frame>
     </FormProvider>
   )
 }
